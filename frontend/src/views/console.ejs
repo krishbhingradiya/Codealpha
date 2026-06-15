@@ -1,0 +1,180 @@
+<%- include('partials/header') %>
+
+<main class="dashboard-section">
+  <div class="dash-container">
+    <div class="dash-header">
+      <div>
+        <h1 class="dash-title">Link Manager</h1>
+        <p class="dash-subtitle">View, sort, filter, and perform bulk operations on your shortened vanity catalog.</p>
+      </div>
+      <button class="btn btn-primary" onclick="document.getElementById('createModal').classList.add('active')">
+        ➕ New Link
+      </button>
+    </div>
+
+    <!-- Operations & Filter Bar -->
+    <div class="operations-bar glass-panel" style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+      <div class="search-box" style="flex: 1; max-width: 450px;">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" class="search-input" placeholder="Search long URLs or alias codes...">
+      </div>
+      
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+        <!-- Status Filter -->
+        <select id="filterStatus" class="form-control" style="width: 140px; padding: 0.5rem 0.75rem; font-size: 0.85rem; height: 38px; border-radius: 6px;">
+          <option value="all">All Statuses</option>
+          <option value="active">Active</option>
+          <option value="expired">Expired</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        
+        <!-- Sorting dropdown -->
+        <select id="sortField" class="form-control" style="width: 160px; padding: 0.5rem 0.75rem; font-size: 0.85rem; height: 38px; border-radius: 6px;">
+          <option value="created_at_desc">Date: Newest</option>
+          <option value="created_at_asc">Date: Oldest</option>
+          <option value="click_count_desc">Clicks: High to Low</option>
+          <option value="click_count_asc">Clicks: Low to High</option>
+          <option value="short_code_asc">Alias: A to Z</option>
+          <option value="short_code_desc">Alias: Z to A</option>
+        </select>
+
+        <button class="btn btn-ghost" id="refreshBtn" style="padding: 0.5rem 1rem; border-radius: 6px; height: 38px;">🔄 Refresh</button>
+      </div>
+    </div>
+
+    <!-- Bulk Operations Bar (appears on row selection) -->
+    <div class="bulk-actions-bar glass-panel" id="bulkActionsBar" style="display: none; padding: 0.75rem 1.5rem; margin-bottom: 1.5rem; align-items: center; justify-content: space-between; border-color: var(--clr-primary); border-width: 1px;">
+      <div style="font-size: 0.9rem; font-weight: 500;">
+        Selected: <span id="selectedCount" style="color: var(--clr-accent); font-weight: 700;">0</span> links
+      </div>
+      <div style="display: flex; gap: 0.75rem;">
+        <button class="btn btn-secondary btn-sm" id="bulkCopyBtn" style="border-radius: 6px; padding: 0.4rem 0.85rem; font-size: 0.8rem; font-weight: 600;">📋 Bulk Copy</button>
+        <button class="btn btn-secondary btn-sm" id="bulkExportBtn" style="border-radius: 6px; padding: 0.4rem 0.85rem; font-size: 0.8rem; font-weight: 600;">📥 Export CSV</button>
+        <button class="btn btn-secondary btn-sm action-delete" id="bulkDeleteBtn" style="border-radius: 6px; padding: 0.4rem 0.85rem; font-size: 0.8rem; font-weight: 600; background: rgba(239, 68, 68, 0.08);">🗑️ Delete Selected</button>
+      </div>
+    </div>
+
+    <!-- Links Table Card -->
+    <div class="table-card glass-panel">
+      <div class="table-responsive">
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th style="width: 48px; text-align: center;">
+                <input type="checkbox" id="selectAllCheckbox" style="cursor: pointer; width: 16px; height: 16px;">
+              </th>
+              <th>Short Code</th>
+              <th>Destination URL</th>
+              <th>Clicks</th>
+              <th>Status</th>
+              <th>Age</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="urlsTableBody">
+            <!-- Dynamic Injection via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pagination Container -->
+    <div class="pagination-container" id="pagination" style="display: none;">
+      <button class="btn btn-ghost btn-sm" id="prevPage" disabled>◀️ Previous</button>
+      <span class="pagination-info" id="paginationInfo">Page 1 of 1</span>
+      <button class="btn btn-ghost btn-sm" id="nextPage" disabled>Next ▶️</button>
+    </div>
+
+    <!-- Empty State Container -->
+    <div class="empty-state glass-panel" id="emptyState" style="display: none;">
+      <span class="empty-icon">📂</span>
+      <h3>No short links found</h3>
+      <p>Shorten your first link from the console to start tracking detailed metrics.</p>
+      <button class="btn btn-primary btn-sm" onclick="document.getElementById('createModal').classList.add('active')">Create First Link</button>
+    </div>
+  </div>
+</main>
+
+<!-- Modals -->
+
+<!-- 1. Create Modal -->
+<div class="modal-overlay" id="createModal">
+  <div class="modal-card glass-panel">
+    <div class="modal-header">
+      <h3>➕ Create Short Link</h3>
+      <button class="modal-close" onclick="document.getElementById('createModal').classList.remove('active')">&times;</button>
+    </div>
+    <form id="createForm" class="modal-form">
+      <div class="form-group">
+        <label for="modalUrl">Destination URL</label>
+        <input type="url" id="modalUrl" class="form-control" placeholder="https://example.com/very/long/destination" required>
+      </div>
+      <div class="form-group">
+        <label for="modalCustomCode">Custom Code (Optional)</label>
+        <input type="text" id="modalCustomCode" class="form-control" placeholder="e.g. customized-name">
+      </div>
+      <div class="form-group">
+        <label for="modalExpirationDate">Expiration Date (Optional)</label>
+        <input type="date" id="modalExpirationDate" class="form-control" />
+        <label for="modalExpirationTime">Expiration Time (Optional)</label>
+        <input type="time" id="modalExpirationTime" class="form-control" />
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('createModal').classList.remove('active')">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="createSubmitBtn">Create Link</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 2. Edit Modal -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal-card glass-panel">
+    <div class="modal-header">
+      <h3>✏️ Edit Short Link</h3>
+      <button class="modal-close" onclick="document.getElementById('editModal').classList.remove('active')">&times;</button>
+    </div>
+    <form id="editForm" class="modal-form">
+      <input type="hidden" id="editId">
+      <div class="form-group">
+        <label for="editUrl">Destination URL</label>
+        <input type="url" id="editUrl" class="form-control" required>
+      </div>
+      <div class="form-group">
+        <label for="editExpirationDate">Expiration Date</label>
+        <input type="date" id="editExpirationDate" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label for="editExpirationTime">Expiration Time</label>
+        <input type="time" id="editExpirationTime" class="form-control" />
+      </div>
+      <div class="form-group checkbox-wrapper">
+        <label class="checkbox-label">
+          <input type="checkbox" id="editActive">
+          <span class="checkbox-custom"></span> Active Status
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('editModal').classList.remove('active')">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="editSubmitBtn">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 3. QR Code Modal -->
+<div class="modal-overlay" id="qrModal">
+  <div class="modal-card glass-panel text-center">
+    <div class="modal-header">
+      <h3>📱 Branded QR Code</h3>
+      <button class="modal-close" onclick="document.getElementById('qrModal').classList.remove('active')">&times;</button>
+    </div>
+    <div class="qr-modal-body">
+      <img id="qrModalImage" src="" alt="Branded QR Code" class="qr-modal-img">
+      <div class="qr-modal-url" id="qrModalUrl"></div>
+      <button id="qrDownloadBtn" class="btn btn-primary">Download Image</button>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

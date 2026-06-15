@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShortLink Pro | <%= title %></title>
+  <meta name="description" content="SaaS-grade URL shortener with analytics, custom links, expiration date, and QR code generation. Built for performance and modern design.">
+  
+  <!-- Premium Outfit and Inter fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Custom Design System Stylesheet -->
+  <link rel="stylesheet" href="/css/style.css">
+  
+  <!-- Load Supabase Auth client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Load Day.js, UTC, and Timezone plugins -->
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/utc.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/timezone.js"></script>
+  <script>
+    dayjs.extend(window.dayjs_plugin_utc);
+    dayjs.extend(window.dayjs_plugin_timezone);
+    dayjs.tz.setDefault("Asia/Kolkata");
+    window.BACKEND_URL = '<%= BACKEND_URL %>';
+    window.SUPABASE_URL = '<%= SUPABASE_URL %>';
+    window.SUPABASE_ANON_KEY = '<%= SUPABASE_ANON_KEY %>';
+  </script>
+</head>
+<body>
+  <!-- Toast notification system container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Main navigation bar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-logo" id="logoLink">
+        <span class="logo-accent">🔗</span> ShortLink <span class="logo-pro">Pro</span>
+      </a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle Navigation">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+      <div class="nav-links">
+        <a href="/" class="nav-item" id="navHome">Home</a>
+        <a href="/dashboard" class="nav-item" id="navDashboard">Workspace</a>
+        <a href="/console" class="btn btn-primary btn-sm" id="navConsoleBtn">Link Manager</a>
+      </div>
+    </div>
+  </nav>
