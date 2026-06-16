@@ -1,0 +1,26 @@
+<%- include('partials/header') %>
+
+<main class="error-section">
+  <div class="error-container">
+    <div class="error-card glass-panel">
+      <div class="error-badge">
+        <% if (errorType === 'expired') { %>
+          ⏰
+        <% } else if (errorType === 'inactive') { %>
+          🔒
+        <% } else { %>
+          ⚠️
+        <% } %>
+      </div>
+      <h1 class="error-code"><%= statusCode %></h1>
+      <h2 class="error-title"><%= title %></h2>
+      <p class="error-message"><%= message %></p>
+      <div class="error-actions">
+        <a href="/" class="btn btn-primary">Go to Home</a>
+        <a href="/dashboard" class="btn btn-secondary">Console Dashboard</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('partials/footer') %>

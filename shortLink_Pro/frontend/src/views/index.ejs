@@ -1,0 +1,144 @@
+<%- include('partials/header') %>
+
+<main class="hero-section" style="padding: 4rem 0;">
+  <!-- Glowing gradient background orbs -->
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+
+  <div class="hero-container" style="max-width: 900px; width: 100%;">
+    <div class="hero-content" style="margin-bottom: 3.5rem;">
+      <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(79, 70, 229, 0.08); border: 1px solid rgba(79, 70, 229, 0.15); padding: 0.4rem 1rem; border-radius: var(--radius-full); margin-bottom: 1.5rem; animation: fadeIn 0.5s ease-out;">
+        <span style="font-size: 0.75rem; font-weight: 700; color: var(--clr-accent); text-transform: uppercase; letter-spacing: 0.5px;">Premium Link Management</span>
+      </div>
+      <h1 class="hero-title" style="margin-bottom: 1rem; font-size: 3.75rem;">Shorten Your Links, <br><span class="gradient-text">Amplify Your Reach</span></h1>
+      <p class="hero-subtitle" style="font-size: 1.15rem; max-width: 680px; margin: 0 auto 2.5rem;">ShortLink Pro is a modern, developer-friendly link management engine. Generate clean, custom shortened aliases, generate instant QR codes, and monitor analytics.</p>
+    </div>
+
+    <!-- Guest Limit Alert Banner -->
+    <div id="guestLimitBanner" class="guest-limit-banner" style="display: none; justify-content: center; margin-bottom: 1.5rem;">
+      <span>⚠️ You've reached the guest limit of 3 temporary links. Please create a free account to continue.</span>
+    </div>
+
+    <!-- Shortener Form Card -->
+    <div class="shortener-card glass-panel" style="margin-bottom: 3.5rem; padding: 2.25rem;">
+      <form id="shortenForm" class="shortener-form">
+        <div class="input-group">
+          <input type="url" id="urlInput" class="form-control" placeholder="Paste your long destination URL here..." required>
+          <button type="submit" class="btn btn-primary btn-lg" id="shortenBtn">
+            <span class="btn-text">Shorten URL</span>
+            <div class="btn-loader" style="display: none;">
+              <span class="spinner-sm"></span>
+              <span>Processing...</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- Advanced toggle controls -->
+        <div class="toggle-container" style="justify-content: flex-start; gap: 2.5rem; margin-top: 1.5rem; padding-left: 0.25rem;">
+          <label class="checkbox-label" id="customAliasLabel">
+            <input type="checkbox" id="customCodeToggle">
+            <span class="checkbox-custom"></span> Custom Alias
+            <span class="lock-badge-icon" id="customAliasLock">🔒</span>
+          </label>
+          <label class="checkbox-label" id="expirationLabel">
+            <input type="checkbox" id="expirationToggle">
+            <span class="checkbox-custom"></span> Set Expiration
+            <span class="lock-badge-icon" id="expirationLock">🔒</span>
+          </label>
+        </div>
+
+        <!-- Advanced Input Fields Drawer -->
+        <div id="formExtras" class="form-extras" style="display: none; margin-top: 1.5rem; justify-content: space-between; gap: 1rem;">
+          <input type="text" id="customCodeInput" class="form-control" placeholder="Enter custom code (e.g. my-link)" style="display: none;">
+          <input type="date" id="expirationDateInput" class="form-control" placeholder="Expiry Date" style="display: none;">
+          <input type="time" id="expirationTimeInput" class="form-control" placeholder="Expiry Time" style="display: none;">
+        </div>
+      </form>
+    </div>
+
+    <!-- Shortening Result Container -->
+    <div id="resultCard" class="result-card glass-panel" style="display: none; margin-bottom: 3.5rem; padding: 2.25rem;">
+      <h3 class="result-title">⚡ Link Generated!</h3>
+      <div class="result-layout">
+        <div class="result-details">
+          <div class="result-item">
+            <label class="result-label">Short URL</label>
+            <div class="result-copy-wrapper">
+              <a href="#" id="resultShortUrl" target="_blank" class="result-link"></a>
+              <button id="copyBtn" class="btn btn-secondary btn-sm" title="Copy link to clipboard">Copy</button>
+            </div>
+          </div>
+          <div class="result-item">
+            <label class="result-label">Original Destination</label>
+            <div class="result-original" id="resultOriginalUrl"></div>
+          </div>
+        </div>
+        <div class="result-qr-panel">
+          <div style="position: relative; display: inline-block;">
+            <img id="resultQrCode" src="" alt="QR Code" class="result-qr-img">
+            <div id="qrLockOverlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(9, 14, 26, 0.85); backdrop-filter: blur(4px); display: none; flex-direction: column; align-items: center; justify-content: center; border-radius: var(--radius-md); text-align: center; padding: 0.5rem;">
+              <span style="font-size: 1.25rem; margin-bottom: 0.25rem;">🔒</span>
+              <span style="font-size: 0.65rem; font-weight: 700; color: var(--clr-accent); text-transform: uppercase;">Premium</span>
+            </div>
+          </div>
+          <button id="downloadQr" class="btn btn-ghost btn-sm">Download QR</button>
+        </div>
+      </div>
+      
+      <!-- Upgrade Callout Banner -->
+      <div id="guestUpgradeBanner" class="premium-upgrade-panel" style="display: none;">
+        <p><strong>Your short link is ready.</strong> Create a free account to save links permanently, unlock analytics, custom aliases, QR downloads, and advanced management tools.</p>
+        <div class="premium-upgrade-actions" style="justify-content: center;">
+          <a href="/signup" class="btn btn-primary">Create Free Account</a>
+          <a href="/login" class="btn btn-secondary">Login</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Counters / Stats Showcase -->
+    <section class="stats-showcase" style="margin-bottom: 5rem;">
+      <div class="stat-card glass-panel">
+        <div class="stat-num" id="statUrls">0</div>
+        <div class="stat-label">Total Links Shortened</div>
+      </div>
+      <div class="stat-card glass-panel">
+        <div class="stat-num" id="statClicks">0</div>
+        <div class="stat-label">Total Clicks Redirected</div>
+      </div>
+    </section>
+
+    <!-- Visual Features Grid -->
+    <section style="margin-top: 6rem; margin-bottom: 4rem;">
+      <h3 style="font-size: 1.75rem; text-align: center; margin-bottom: 3rem; font-family: var(--font-heading);">Engineered for Modern Teams</h3>
+      <div class="features-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; text-align: left;">
+        <div class="feature-item glass-panel">
+          <span class="feature-icon" style="color: var(--clr-accent);">🔗</span>
+          <h4>Smart URL Management</h4>
+          <p>Organize, search, and update destination URLs in real-time without changing the short link.</p>
+        </div>
+        <div class="feature-item glass-panel">
+          <span class="feature-icon" style="color: var(--clr-secondary);">📊</span>
+          <h4>Advanced Analytics</h4>
+          <p>Monitor click patterns, visitor counts, and redirect statistics over time with precision.</p>
+        </div>
+        <div class="feature-item glass-panel">
+          <span class="feature-icon" style="color: var(--clr-accent);">📱</span>
+          <h4>Instant QR Codes</h4>
+          <p>Automatically generate clean vector QR codes ready for marketing materials and print formats.</p>
+        </div>
+        <div class="feature-item glass-panel">
+          <span class="feature-icon" style="color: var(--clr-success);">⚡</span>
+          <h4>Fast Link Creation</h4>
+          <p>Generate highly-optimized vanity codes in milliseconds with our high-frequency REST API.</p>
+        </div>
+        <div class="feature-item glass-panel">
+          <span class="feature-icon" style="color: var(--clr-warning);">🔒</span>
+          <h4>Secure Storage</h4>
+          <p>Every link is saved securely in our database and can only be accessed or modified by you.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome – ShortLink Pro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/welcome.css" />
+</head>
+<body class="welcome-bg">
+  <section class="welcome-container glass-card">
+    <h1 class="headline">🎉 Welcome to ShortLink Pro, <span id="userName"></span>!</h1>
+    <p class="subtitle">Your account is ready. Let’s show you what you can do.</p>
+
+    <!-- Feature preview cards -->
+    <div class="features-grid">
+      <div class="feature-card glass-card">
+        <div class="icon">🔗</div>
+        <h3>Smart URL Shortening</h3>
+        <p>Create memorable short links instantly.</p>
+      </div>
+      <div class="feature-card glass-card">
+        <div class="icon">📊</div>
+        <h3>Advanced Analytics</h3>
+        <p>Track performance and clicks.</p>
+      </div>
+      <div class="feature-card glass-card">
+        <div class="icon">📱</div>
+        <h3>QR Code Generator</h3>
+        <p>Generate and download QR codes.</p>
+      </div>
+      <div class="feature-card glass-card">
+        <div class="icon">⚡</div>
+        <h3>Custom Aliases</h3>
+        <p>Create personalized branded links.</p>
+      </div>
+      <div class="feature-card glass-card">
+        <div class="icon">📂</div>
+        <h3>Link Management</h3>
+        <p>Organize, edit, and manage links easily.</p>
+      </div>
+      <div class="feature-card glass-card">
+        <div class="icon">🔒</div>
+        <h3>Secure Storage</h3>
+        <p>Your links are safely connected to your account.</p>
+      </div>
+    </div>
+
+    <!-- Getting started checklist -->
+    <section class="checklist">
+      <h2>Getting Started</h2>
+      <ul>
+        <li>✓ Create your first short link</li>
+        <li>✓ Explore analytics</li>
+        <li>✓ Download your first QR code</li>
+        <li>✓ Try a custom alias</li>
+      </ul>
+    </section>
+
+    <!-- Personal message -->
+    <p class="personal-msg">Welcome aboard, <span id="userNameMsg"></span> 👋<br>
+      We’re excited to have you here. ShortLink Pro was built to make link management faster,
+      smarter, and easier. Let’s create your first smart link.
+    </p>
+
+    <!-- Action buttons -->
+    <div class="action-buttons">
+      <button id="primaryBtn" class="btn primary">🚀 Create My First Link</button>
+      <button id="secondaryBtn" class="btn secondary">📊 Explore Dashboard</button>
+      <button id="skipBtn" class="btn tertiary">Skip for Now</button>
+    </div>
+  </section>
+  <script src="/js/welcome.js"></script>
+</body>
+</html>
