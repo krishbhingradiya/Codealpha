@@ -1,0 +1,1 @@
+ShortLink Pro is a full-stack URL shortening platform built with Node.js, Express.js, Supabase, and modern frontend technologies. It enables users to create smart short links, generate QR codes, track analytics, manage links through a dashboard, and securely store data with authentication and cloud integration.
