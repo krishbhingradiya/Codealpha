@@ -157,7 +157,7 @@ pie title "Visitor Traffic Referrers (Distribution Example)"
 The repository contains two isolated Node.js modules:
 
 ```
-ShortLink-Pro/
+shortlink_pro/
 │
 ├── backend/                    # Core REST API Service
 │   ├── database/
