@@ -1,0 +1,176 @@
+<%- include('partials/header') %>
+
+<main class="auth-layout">
+  <div class="auth-container">
+    
+    <!-- Left Column: Login Onboarding Panel -->
+    <div class="auth-form-panel glass-panel" style="animation: scaleUp 0.3s ease-out forwards; min-height: 480px; display: flex; flex-direction: column; justify-content: center;">
+      <h2 style="font-size: 1.85rem; margin-bottom: 0.5rem; font-family: var(--font-heading); text-align: left;">Welcome Back</h2>
+      <p class="text-muted" style="margin-bottom: 1.5rem; font-size: 0.9rem; text-align: left;">Sign in to your ShortLink Pro account</p>
+
+      <!-- Dual Login Tabs -->
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab-btn active" id="tabPasswordBtn">Password Login</button>
+        <button type="button" class="auth-tab-btn" id="tabOtpBtn">OTP Login</button>
+      </div>
+
+      <!-- Method 1: Password Login Panel -->
+      <div id="loginPasswordPanel" class="auth-step-panel active">
+        <form id="loginForm" class="modal-form" style="display: flex; flex-direction: column; gap: 1.25rem;">
+          <div class="form-group" style="text-align: left;">
+            <label for="loginEmail" style="display: block; font-size: 0.85rem; color: var(--clr-muted); margin-bottom: 0.5rem; font-weight: 500;">Email Address</label>
+            <input type="email" id="loginEmail" class="form-control" placeholder="you@example.com" required>
+          </div>
+
+          <div class="form-group" style="text-align: left;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <label for="loginPassword" style="font-size: 0.85rem; color: var(--clr-muted); margin: 0; font-weight: 500;">Password</label>
+              <a href="/forgot-password" style="font-size: 0.8rem; color: var(--clr-accent); font-weight: 500;">Forgot password?</a>
+            </div>
+            <div style="position: relative;">
+              <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required style="padding-right: 3.5rem;">
+              <button type="button" class="password-toggle-btn" id="togglePasswordBtn" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); font-size: 0.8rem; color: var(--clr-accent); border: none; background: none; font-weight: 600;">Show</button>
+            </div>
+          </div>
+
+          <!-- Remember Me option -->
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 0.25rem;">
+            <label class="checkbox-label" style="font-size: 0.85rem;">
+              <input type="checkbox" id="loginRememberMe" checked>
+              <span class="checkbox-custom"></span> Remember Me
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="loginSubmitBtn" style="width: 100%; font-family: var(--font-heading); font-weight: 600; padding: 0.85rem; margin-top: 0.5rem;">
+            <span class="btn-text">Sign In</span>
+            <div class="btn-loader" style="display: none;">
+              <span class="spinner-sm"></span>
+              <span>Signing in...</span>
+            </div>
+          </button>
+        </form>
+      </div>
+
+      <!-- Method 2: OTP Login Panel -->
+      <div id="loginOtpPanel" class="auth-step-panel">
+        
+        <!-- Step 2A: Enter Email to Send Code -->
+        <div id="loginOtpEmailStep" class="active">
+          <form id="loginOtpEmailForm" style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <div class="form-group" style="text-align: left;">
+              <label for="loginOtpEmail" style="display: block; font-size: 0.85rem; color: var(--clr-muted); margin-bottom: 0.5rem; font-weight: 500;">Email Address</label>
+              <input type="email" id="loginOtpEmail" class="form-control" placeholder="you@example.com" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="btnLoginOtpSend" style="width: 100%; font-family: var(--font-heading); font-weight: 600; padding: 0.85rem; margin-top: 0.5rem;">
+              <span class="btn-text">Send Login Code</span>
+              <div class="btn-loader" style="display: none;">
+                <span class="spinner-sm"></span>
+                <span>Sending OTP...</span>
+              </div>
+            </button>
+          </form>
+        </div>
+
+        <!-- Step 2B: Enter 6-digit OTP Code to Log In -->
+        <div id="loginOtpCodeStep" style="display: none;">
+          <p class="text-muted" id="loginOtpSentMessage" style="margin-bottom: 1.5rem; font-size: 0.9rem; text-align: left;">Verification code sent to your email.</p>
+          <form id="loginOtpCodeForm" style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <div class="otp-container" id="loginOtpContainer">
+              <input type="text" maxlength="1" class="otp-input" pattern="[0-9]" inputmode="numeric" required>
+              <input type="text" maxlength="1" class="otp-input" pattern="[0-9]" inputmode="numeric" required>
+              <input type="text" maxlength="1" class="otp-input" pattern="[0-9]" inputmode="numeric" required>
+              <input type="text" maxlength="1" class="otp-input" pattern="[0-9]" inputmode="numeric" required>
+              <input type="text" maxlength="1" class="otp-input" pattern="[0-9]" inputmode="numeric" required>
+              <input type="text" maxlength="1" class="otp-input" pattern="[0-9]" inputmode="numeric" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="btnLoginOtpVerify" style="width: 100%; font-family: var(--font-heading); font-weight: 600; padding: 0.85rem;">
+              <span class="btn-text">Verify & Log In</span>
+              <div class="btn-loader" style="display: none;">
+                <span class="spinner-sm"></span>
+                <span>Verifying code...</span>
+              </div>
+            </button>
+          </form>
+
+          <div class="otp-timer-container">
+            Didn't receive a code? 
+            <button type="button" class="resend-otp-btn" id="resendLoginOtpBtn" disabled>Resend Code</button>
+            <span id="resendLoginTimerText">(60s)</span>
+          </div>
+
+          <p class="text-muted" style="text-align: center; margin-top: 1.5rem; font-size: 0.85rem; margin-bottom: 0;">
+            Entered wrong email? <a href="#" id="changeLoginEmailLink" style="color: var(--clr-accent); font-weight: 600;">Go Back</a>
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Social Logins placeholder (Future Ready) -->
+      <div style="margin-top: 1.75rem; display: flex; flex-direction: column; gap: 0.75rem;">
+        <div style="display: flex; align-items: center; text-align: center;">
+          <hr style="flex: 1; border-color: rgba(255,255,255,0.06); border-style: solid; border-width: 1px 0 0 0;">
+          <span style="padding: 0 10px; font-size: 0.75rem; color: var(--clr-muted); text-transform: uppercase; letter-spacing: 0.5px;">Or continue with</span>
+          <hr style="flex: 1; border-color: rgba(255,255,255,0.06); border-style: solid; border-width: 1px 0 0 0;">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <button type="button" class="btn btn-secondary btn-sm" id="googleLoginBtn" style="font-weight: 500;">Google</button>
+          <button type="button" class="btn btn-secondary btn-sm" id="githubLoginBtn" style="font-weight: 500;">GitHub</button>
+        </div>
+      </div>
+
+      <p class="text-muted" style="text-align: center; margin-top: 2rem; font-size: 0.85rem; margin-bottom: 0;">
+        Don't have an account? <a href="/signup" style="color: var(--clr-accent); font-weight: 600;">Sign up</a>
+      </p>
+    </div>
+
+    <!-- Right Column: Premium Value Panel -->
+    <div class="auth-benefits-panel glass-panel" style="animation: scaleUp 0.3s ease-out forwards; text-align: left;">
+      <h3 class="onboarding-title">Supercharge Your Shortlinks</h3>
+      <p class="text-muted" style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.5rem;">Join creators, students, businesses, and developers using ShortLink Pro to manage and track links smarter.</p>
+      
+      <ul class="onboarding-list">
+        <li class="onboarding-item">
+          <div class="onboarding-icon">✓</div>
+          <div class="onboarding-text">
+            <h5>Save links permanently</h5>
+            <p>Your links never expire unless configured. Review and edit destinations at any time.</p>
+          </div>
+        </li>
+        <li class="onboarding-item">
+          <div class="onboarding-icon">✓</div>
+          <div class="onboarding-text">
+            <h5>Unlock advanced analytics</h5>
+            <p>Access clicks over time, referrer insights, geographic charts, and device diagnostics.</p>
+          </div>
+        </li>
+        <li class="onboarding-item">
+          <div class="onboarding-icon">✓</div>
+          <div class="onboarding-text">
+            <h5>Download custom QR codes</h5>
+            <p>Get high-resolution interactive QR code images linked to your vanity codes immediately.</p>
+          </div>
+        </li>
+        <li class="onboarding-item">
+          <div class="onboarding-icon">✓</div>
+          <div class="onboarding-text">
+            <h5>Manage all links</h5>
+            <p>Easily search, filter, update, or delete your redirects inside a unified command workspace.</p>
+          </div>
+        </li>
+        <li class="onboarding-item">
+          <div class="onboarding-icon">✓</div>
+          <div class="onboarding-text">
+            <h5>Bulk CSV exports</h5>
+            <p>Export your entire database records instantly in clean, formatted spreadsheet summaries.</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</main>
+
+<%- include('partials/footer') %>

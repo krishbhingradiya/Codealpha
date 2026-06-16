@@ -1,0 +1,66 @@
+# Render Blueprint configuration for ShortLink Pro
+services:
+  # Backend API Service
+  - type: web
+    name: shortlink-pro-backend
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: BASE_URL
+        sync: false # Set to your backend URL e.g. https://shortlink-pro-backend.onrender.com
+      - key: FRONTEND_URL
+        sync: false # Set to your frontend URL e.g. https://shortlink-pro-frontend.onrender.com
+      - key: SUPABASE_URL
+        value: https://islrshraujtiornnlngh.supabase.co
+      - key: SUPABASE_ANON_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzbHJzaHJhdWp0aW9ybm5sbmdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1MDc2MTksImV4cCI6MjA5NzA4MzYxOX0.C0Sf3NQyDLnXEu6hn3UxXHaEJnSe6Fol0AUpENyqZ4o
+      - key: TZ
+        value: Asia/Kolkata
+      - key: SHORT_CODE_LENGTH
+        value: 7
+      - key: RATE_LIMIT_WINDOW_MS
+        value: 900000
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: 100
+      # SMTP Settings - update in Render dashboard for real emails
+      - key: SMTP_HOST
+        value: smtp.example.com
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_SECURE
+        value: false
+      - key: SMTP_USER
+        value: your_smtp_user
+      - key: SMTP_PASS
+        value: your_smtp_password
+      - key: FROM_EMAIL
+        value: no-reply@shortlink.pro
+
+  # Frontend UI Service
+  - type: web
+    name: shortlink-pro-frontend
+    env: node
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: BACKEND_URL
+        sync: false # Set to your backend URL e.g. https://shortlink-pro-backend.onrender.com
+      - key: SUPABASE_URL
+        value: https://islrshraujtiornnlngh.supabase.co
+      - key: SUPABASE_ANON_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzbHJzaHJhdWp0aW9ybm5sbmdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1MDc2MTksImV4cCI6MjA5NzA4MzYxOX0.C0Sf3NQyDLnXEu6hn3UxXHaEJnSe6Fol0AUpENyqZ4o
+      - key: TZ
+        value: Asia/Kolkata

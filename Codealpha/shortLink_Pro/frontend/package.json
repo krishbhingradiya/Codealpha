@@ -1,0 +1,24 @@
+{
+  "name": "shortlink-pro-frontend",
+  "version": "1.0.0",
+  "description": "ShortLink Pro — Frontend UI Server built with Node.js, Express.js, and EJS.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": ["url-shortener", "express", "ejs", "ui-server"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "express": "^4.21.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
