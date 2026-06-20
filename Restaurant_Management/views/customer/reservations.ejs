@@ -1,0 +1,161 @@
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-secondary"><i class="ri-calendar-check-line mr-2 text-primary"></i>Reservations</h1>
+  </div>
+
+  <!-- New Reservation Form -->
+  <div class="bg-white rounded-2xl border border-gray-100 p-6 mb-8">
+    <h2 class="font-semibold text-secondary mb-4">Make a Reservation</h2>
+    <form action="/reservations" method="POST" class="grid sm:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+        <input type="date" name="reservation_date" required min="<%= new Date().toISOString().split('T')[0] %>"
+          class="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Time</label>
+        <div class="flex gap-2">
+          <!-- Hour Select -->
+          <select id="time_hour" required
+            class="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm bg-white">
+            <option value="">Hour</option>
+            <% for (let h = 1; h <= 12; h++) { %>
+              <option value="<%= h %>"><%= h %></option>
+            <% } %>
+          </select>
+
+          <!-- Minute Select -->
+          <select id="time_minute" required
+            class="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm bg-white">
+            <option value="">Min</option>
+            <% for (let m = 0; m < 60; m += 5) { %>
+              <% let mStr = m.toString().padStart(2, '0'); %>
+              <option value="<%= mStr %>"><%= mStr %></option>
+            <% } %>
+          </select>
+          
+          <!-- AM/PM Dropdown -->
+          <select id="time_ampm"
+            class="w-24 px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm bg-white">
+            <option value="AM">AM</option>
+            <option value="PM" selected>PM</option>
+          </select>
+        </div>
+        <!-- Hidden input for submitting to the server in 24-hour format -->
+        <input type="hidden" name="reservation_time" id="reservation_time" required>
+        
+        <script>
+          document.addEventListener('DOMContentLoaded', () => {
+            const hourSelect = document.getElementById('time_hour');
+            const minuteSelect = document.getElementById('time_minute');
+            const ampmSelect = document.getElementById('time_ampm');
+            const hiddenTimeInput = document.getElementById('reservation_time');
+
+            function updateHiddenTime() {
+              const hourVal = hourSelect.value;
+              const minVal = minuteSelect.value;
+              const ampmVal = ampmSelect.value;
+
+              if (!hourVal || !minVal) {
+                hiddenTimeInput.value = '';
+                return;
+              }
+
+              let hour = parseInt(hourVal);
+              if (ampmVal === 'PM' && hour !== 12) {
+                hour += 12;
+              } else if (ampmVal === 'AM' && hour === 12) {
+                hour = 0;
+              }
+
+              const formattedHour = hour.toString().padStart(2, '0');
+              hiddenTimeInput.value = `${formattedHour}:${minVal}:00`;
+            }
+
+            hourSelect.addEventListener('change', updateHiddenTime);
+            minuteSelect.addEventListener('change', updateHiddenTime);
+            ampmSelect.addEventListener('change', updateHiddenTime);
+
+            const form = hourSelect.closest('form');
+            if (form) {
+              form.addEventListener('submit', (e) => {
+                updateHiddenTime();
+                if (!hiddenTimeInput.value) {
+                  e.preventDefault();
+                  alert('Please select a valid time.');
+                }
+              });
+            }
+          });
+        </script>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Number of Guests</label>
+        <input type="number" name="guests" required min="1" max="20" value="2"
+          class="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Table</label>
+        <select name="table_id" required class="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm bg-white">
+          <option value="">Select a table</option>
+          <% if (typeof tables !== 'undefined') { %>
+            <% tables.forEach(t => { %>
+              <option value="<%= t.id %>">Table <%= t.table_number %> (Seats <%= t.capacity %>)</option>
+            <% }) %>
+          <% } %>
+        </select>
+      </div>
+      <div class="sm:col-span-2">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Notes (optional)</label>
+        <textarea name="notes" rows="2" placeholder="Any special requests..."
+          class="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm resize-none"></textarea>
+      </div>
+      <div class="sm:col-span-2">
+        <button type="submit" class="px-6 py-2.5 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors text-sm font-medium">
+          <i class="ri-calendar-check-line mr-1"></i>Submit Reservation
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- My Reservations -->
+  <% if (typeof reservations !== 'undefined' && reservations.length > 0) { %>
+    <%
+      const formatTimeAMPM = (timeStr) => {
+        if (!timeStr) return '';
+        const parts = timeStr.split(':');
+        let hour = parseInt(parts[0]);
+        const min = parts[1];
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        hour = hour % 12;
+        hour = hour ? hour : 12;
+        return `${hour}:${min} ${ampm}`;
+      };
+    %>
+    <h2 class="font-semibold text-secondary mb-4">My Reservations</h2>
+    <div class="space-y-3">
+      <% reservations.forEach(r => { %>
+        <div class="bg-white rounded-xl border border-gray-100 p-4 flex items-center justify-between">
+          <div>
+            <div class="flex items-center gap-3 mb-1">
+              <span class="font-medium text-secondary">
+                <%= new Date(r.reservation_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) %>
+                at <%= formatTimeAMPM(r.reservation_time) %>
+              </span>
+              <%
+                const rColors = { pending: 'bg-yellow-100 text-yellow-800', confirmed: 'bg-green-100 text-green-800', cancelled: 'bg-red-100 text-red-800', completed: 'bg-blue-100 text-blue-800' };
+              %>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-medium <%= rColors[r.status] || 'bg-gray-100 text-gray-800' %>">
+                <%= r.status.charAt(0).toUpperCase() + r.status.slice(1) %>
+              </span>
+            </div>
+            <p class="text-sm text-gray-500">
+              <i class="ri-group-line mr-1"></i><%= r.guests %> guests
+              <% if (r.tables) { %> · Table <%= r.tables.table_number %><% } %>
+            </p>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</div>

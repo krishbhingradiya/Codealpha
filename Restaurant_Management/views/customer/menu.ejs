@@ -1,0 +1,89 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Hero Section -->
+  <div class="bg-gradient-to-r from-primary to-orange-400 rounded-2xl p-8 md:p-12 mb-8 text-white relative overflow-hidden">
+    <div class="absolute inset-0 opacity-10">
+      <div class="absolute top-4 right-10 text-8xl">🍕</div>
+      <div class="absolute bottom-4 left-10 text-7xl">🍔</div>
+      <div class="absolute top-10 left-1/2 text-6xl">☕</div>
+    </div>
+    <div class="relative z-10">
+      <h1 class="text-3xl md:text-4xl font-bold mb-3">Discover Our Menu</h1>
+      <p class="text-white/80 text-lg max-w-xl">Fresh ingredients, bold flavors, and dishes crafted with passion. Browse our menu and order your favorites.</p>
+    </div>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="mb-6">
+    <form action="/" method="GET" class="flex gap-3">
+      <div class="flex-1 relative">
+        <i class="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+        <input type="text" name="search" value="<%= searchQuery %>" placeholder="Search menu items..."
+          class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm bg-white">
+      </div>
+      <button type="submit" class="px-5 py-2.5 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors text-sm font-medium">
+        Search
+      </button>
+    </form>
+  </div>
+
+  <!-- Category Filter -->
+  <div class="flex gap-2 overflow-x-auto pb-4 mb-6 scrollbar-hide">
+    <a href="/" class="flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors <%= activeCategory === 'all' ? 'bg-primary text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-200 hover:border-primary hover:text-primary' %>">
+      🍽️ All Items
+    </a>
+    <% categories.forEach(cat => { %>
+      <a href="/?category=<%= cat.id %>" class="flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors <%= activeCategory === cat.id ? 'bg-primary text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-200 hover:border-primary hover:text-primary' %>">
+        <%= cat.icon %> <%= cat.name %>
+      </a>
+    <% }) %>
+  </div>
+
+  <!-- Menu Grid -->
+  <% if (menuItems.length === 0) { %>
+    <div class="text-center py-16">
+      <i class="ri-restaurant-line text-6xl text-gray-300 mb-4 block"></i>
+      <h3 class="text-lg font-medium text-gray-500">No items found</h3>
+      <p class="text-gray-400 text-sm mt-1">Try a different search or category</p>
+    </div>
+  <% } else { %>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <% menuItems.forEach(item => { %>
+        <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 group">
+          <!-- Image -->
+          <div class="aspect-[4/3] bg-gradient-to-br from-orange-50 to-amber-50 relative overflow-hidden">
+            <% if (item.image_url) { %>
+              <img src="<%= item.image_url %>" alt="<%= item.name %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            <% } else { %>
+              <div class="w-full h-full flex items-center justify-center">
+                <span class="text-5xl"><%= item.categories ? item.categories.icon : '🍽️' %></span>
+              </div>
+            <% } %>
+            <% if (item.categories) { %>
+              <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-xs font-medium text-gray-700 px-2.5 py-1 rounded-full">
+                <%= item.categories.icon %> <%= item.categories.name %>
+              </span>
+            <% } %>
+          </div>
+          
+          <!-- Content -->
+          <div class="p-4">
+            <h3 class="font-semibold text-secondary text-base mb-1 line-clamp-1"><%= item.name %></h3>
+            <p class="text-gray-400 text-xs mb-3 line-clamp-2"><%= item.description || 'Delicious dish prepared with fresh ingredients' %></p>
+            
+            <div class="flex items-center justify-between">
+              <span class="text-xl font-bold text-primary"><%= formatCurrency(item.price) %></span>
+              <% if (!user || user.role === 'customer') { %>
+              <div data-item-id="<%= item.id %>" data-item-json="<%- JSON.stringify({id: item.id, name: item.name, price: parseFloat(item.price), image_url: item.image_url, category_icon: item.categories ? item.categories.icon : '🍽️'}).replace(/\"/g, '&quot;') %>">
+                <button onclick="event.stopPropagation();addToCart(JSON.parse(this.parentElement.dataset.itemJson))"
+                  class="px-4 py-2 bg-primary text-white text-sm font-medium rounded-xl hover:bg-primary-dark transition-colors shadow-sm active:scale-95">
+                  <i class="ri-add-line mr-1"></i>Add
+                </button>
+              </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</div>

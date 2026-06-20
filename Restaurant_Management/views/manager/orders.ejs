@@ -1,0 +1,147 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-secondary">Order Management</h1>
+      <p class="text-gray-500 text-sm mt-1">Manage and track all customer orders</p>
+    </div>
+    <a href="/manager/dashboard" class="text-sm text-primary hover:underline">← Back to Dashboard</a>
+  </div>
+
+  <!-- Status Filter Tabs -->
+  <div class="flex gap-2 overflow-x-auto pb-4 mb-6">
+    <% const filters = [
+      { key: 'all', label: 'All Orders', icon: 'ri-list-check' },
+      { key: 'pending', label: 'Pending', icon: 'ri-time-line' },
+      { key: 'preparing', label: 'Preparing', icon: 'ri-fire-line' },
+      { key: 'ready', label: 'Ready', icon: 'ri-checkbox-circle-line' },
+      { key: 'served', label: 'Served', icon: 'ri-restaurant-line' },
+      { key: 'completed', label: 'Completed', icon: 'ri-check-double-line' },
+      { key: 'cancelled', label: 'Cancelled', icon: 'ri-close-circle-line' }
+    ]; %>
+    <% filters.forEach(f => { %>
+      <a href="/manager/orders?status=<%= f.key %>"
+        class="flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors <%= currentFilter === f.key ? 'bg-primary text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-200 hover:border-primary hover:text-primary' %>">
+        <i class="<%= f.icon %> mr-1"></i><%= f.label %>
+      </a>
+    <% }) %>
+  </div>
+
+  <!-- Orders List -->
+  <% if (orders.length === 0) { %>
+    <div class="text-center py-16 bg-white rounded-2xl border border-gray-100">
+      <i class="ri-file-list-3-line text-6xl text-gray-300 mb-4 block"></i>
+      <h3 class="text-lg font-medium text-gray-500">No orders found</h3>
+      <p class="text-gray-400 text-sm mt-1">Orders will appear here when customers place them</p>
+    </div>
+  <% } else { %>
+    <div class="space-y-4">
+      <% orders.forEach(order => { %>
+        <%
+          const statusConfig = {
+            pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', icon: 'ri-time-line' },
+            preparing: { bg: 'bg-blue-100', text: 'text-blue-800', icon: 'ri-fire-line' },
+            ready: { bg: 'bg-green-100', text: 'text-green-800', icon: 'ri-checkbox-circle-line' },
+            served: { bg: 'bg-purple-100', text: 'text-purple-800', icon: 'ri-restaurant-line' },
+            completed: { bg: 'bg-green-100', text: 'text-green-800', icon: 'ri-check-double-line' },
+            cancelled: { bg: 'bg-red-100', text: 'text-red-800', icon: 'ri-close-circle-line' }
+          };
+          const sc = statusConfig[order.status] || statusConfig.pending;
+          const orderTime = new Date(order.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+          const orderDate = new Date(order.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+        %>
+        <div class="bg-white rounded-xl border border-gray-100 p-5 hover:shadow-md transition-shadow">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <!-- Order Info -->
+            <div class="flex-1">
+              <div class="flex items-center gap-3 mb-2">
+                <span class="font-bold text-secondary text-lg">#<%= order.order_number %></span>
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-medium <%= sc.bg %> <%= sc.text %>">
+                  <i class="<%= sc.icon %> mr-0.5"></i><%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
+                </span>
+                <span class="text-xs text-gray-400"><%= orderDate %> at <%= orderTime %></span>
+              </div>
+
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                <div>
+                  <span class="text-gray-400">Customer:</span>
+                  <span class="font-medium text-secondary ml-1"><%= order.users ? order.users.name : 'Guest' %></span>
+                </div>
+                <div>
+                  <span class="text-gray-400">Mobile:</span>
+                  <span class="font-medium text-secondary ml-1"><%= order.users && order.users.mobile ? order.users.mobile : 'N/A' %></span>
+                </div>
+                <div>
+                  <span class="text-gray-400">Table:</span>
+                  <span class="font-medium text-secondary ml-1"><%= order.table_number || 'Takeaway' %></span>
+                </div>
+                <div>
+                  <span class="text-gray-400">Total:</span>
+                  <span class="font-bold text-primary ml-1"><%= formatCurrency(order.total_amount) %></span>
+                </div>
+              </div>
+
+              <!-- Order Items -->
+              <% if (order.order_items && order.order_items.length > 0) { %>
+                <div class="mt-3 p-3 bg-gray-50 rounded-lg">
+                  <p class="text-xs font-medium text-gray-500 mb-1">Items:</p>
+                  <div class="flex flex-wrap gap-2">
+                    <% order.order_items.forEach(item => { %>
+                      <span class="text-xs bg-white px-2 py-1 rounded border border-gray-200">
+                        <span class="text-primary font-medium"><%= item.quantity %>x</span> <%= item.item_name %>
+                      </span>
+                    <% }) %>
+                  </div>
+                </div>
+              <% } %>
+
+              <% if (order.special_instructions) { %>
+                <p class="text-xs text-gray-500 mt-2 italic">📝 "<%= order.special_instructions %>"</p>
+              <% } %>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex flex-wrap gap-2 lg:flex-col lg:min-w-[140px]">
+              <% if (order.status === 'pending') { %>
+                <form action="/manager/orders/<%= order.id %>/status" method="POST" class="inline">
+                  <input type="hidden" name="status" value="preparing">
+                  <button type="submit" class="w-full px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors">
+                    <i class="ri-check-line mr-1"></i>Accept
+                  </button>
+                </form>
+                <form action="/manager/orders/<%= order.id %>/status" method="POST" class="inline">
+                  <input type="hidden" name="status" value="cancelled">
+                  <button type="submit" class="w-full px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-lg hover:bg-red-600 transition-colors">
+                    <i class="ri-close-line mr-1"></i>Cancel
+                  </button>
+                </form>
+              <% } else if (order.status === 'preparing') { %>
+                <form action="/manager/orders/<%= order.id %>/status" method="POST" class="inline">
+                  <input type="hidden" name="status" value="ready">
+                  <button type="submit" class="w-full px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-lg hover:bg-green-600 transition-colors">
+                    <i class="ri-checkbox-circle-line mr-1"></i>Mark Ready
+                  </button>
+                </form>
+              <% } else if (order.status === 'ready') { %>
+                <form action="/manager/orders/<%= order.id %>/status" method="POST" class="inline">
+                  <input type="hidden" name="status" value="served">
+                  <button type="submit" class="w-full px-4 py-2 bg-purple-500 text-white text-sm font-medium rounded-lg hover:bg-purple-600 transition-colors">
+                    <i class="ri-restaurant-line mr-1"></i>Mark Served
+                  </button>
+                </form>
+              <% } else if (order.status === 'served') { %>
+                <form action="/manager/orders/<%= order.id %>/status" method="POST" class="inline">
+                  <input type="hidden" name="status" value="completed">
+                  <button type="submit" class="w-full px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors">
+                    <i class="ri-check-double-line mr-1"></i>Complete
+                  </button>
+                </form>
+              <% } else { %>
+                <span class="text-xs text-gray-400 text-center">No actions</span>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</div>

@@ -1,0 +1,214 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-secondary flex items-center gap-2">
+        <i class="ri-coupon-3-line text-primary"></i> Coupon Management
+      </h1>
+      <p class="text-gray-500 text-sm mt-1">Generate coupons, check usage metrics, and toggle activation status</p>
+    </div>
+    <a href="/admin" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors">
+      <i class="ri-arrow-left-line mr-1"></i> Back to Dashboard
+    </a>
+  </div>
+
+  <!-- Coupon Stats Cards -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+      <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center mb-3">
+        <i class="ri-coupon-line text-primary text-xl"></i>
+      </div>
+      <p class="text-2xl font-extrabold text-secondary"><%= stats.totalCreated %></p>
+      <p class="text-xs text-gray-400 mt-0.5">Total Coupons Created</p>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+      <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center mb-3">
+        <i class="ri-checkbox-circle-line text-green-500 text-xl"></i>
+      </div>
+      <p class="text-2xl font-extrabold text-secondary"><%= stats.activeCount %></p>
+      <p class="text-xs text-gray-400 mt-0.5">Active & Unused</p>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+      <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mb-3">
+        <i class="ri-history-line text-blue-500 text-xl"></i>
+      </div>
+      <p class="text-2xl font-extrabold text-secondary"><%= stats.usedCount %></p>
+      <p class="text-xs text-gray-400 mt-0.5">Coupons Redeemed</p>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+      <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mb-3">
+        <span class="text-orange-500 font-extrabold text-lg">₹</span>
+      </div>
+      <p class="text-2xl font-extrabold text-secondary">₹<%= parseFloat(stats.totalDiscountGiven || 0).toFixed(2) %></p>
+      <p class="text-xs text-gray-400 mt-0.5">Total Discount Given</p>
+    </div>
+  </div>
+
+  <div class="grid lg:grid-cols-3 gap-8 mb-8">
+    <!-- Coupon Creation Form -->
+    <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm h-fit">
+      <h3 class="font-bold text-lg text-secondary mb-4 flex items-center gap-2">
+        <i class="ri-add-circle-line text-primary"></i> Create Custom Coupon
+      </h3>
+      <form action="/admin/coupons" method="POST" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Coupon Code</label>
+          <input type="text" name="code" required placeholder="e.g. WELCOME20, FESTIVE30" 
+            class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all uppercase">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Customer Email</label>
+          <input type="email" name="customer_email" required placeholder="customer@example.com" 
+            class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Discount %</label>
+            <input type="number" name="discount_percent" min="1" max="100" required placeholder="20" 
+              class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Max Discount (₹)</label>
+            <input type="number" name="max_discount" min="1" placeholder="200" value="200" 
+              class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Min Order (₹)</label>
+            <input type="number" name="min_order" min="0" placeholder="299" value="299" 
+              class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Expiry Date</label>
+            <input type="date" name="expires_at" 
+              class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
+          </div>
+        </div>
+        <button type="submit" class="w-full py-3 bg-primary text-white font-medium rounded-xl hover:bg-primary-dark transition-colors shadow-sm text-sm flex items-center justify-center gap-2">
+          <i class="ri-check-fill"></i> Generate Coupon
+        </button>
+      </form>
+    </div>
+
+    <!-- Coupons Listing Table -->
+    <div class="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-6 shadow-sm overflow-hidden">
+      <h3 class="font-bold text-lg text-secondary mb-4 flex items-center gap-2">
+        <i class="ri-list-check-2 text-primary"></i> Generated Coupons
+      </h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-gray-100 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              <th class="py-3 pr-4">Code</th>
+              <th class="py-3 px-2">Assigned Email</th>
+              <th class="py-3 px-2 text-center">Details</th>
+              <th class="py-3 px-2 text-center">Status</th>
+              <th class="py-3 pl-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50 text-sm text-secondary">
+            <% if (coupons.length === 0) { %>
+              <tr>
+                <td colspan="5" class="py-8 text-center text-gray-400">No coupons generated yet.</td>
+              </tr>
+            <% } else { %>
+              <% coupons.forEach(coupon => { %>
+                <tr>
+                  <td class="py-3.5 pr-4 font-bold text-primary tracking-wide">
+                    <%= coupon.code %>
+                  </td>
+                  <td class="py-3.5 px-2 text-xs truncate max-w-[150px]" title="<%= coupon.customer_email %>">
+                    <%= coupon.customer_email %>
+                  </td>
+                  <td class="py-3.5 px-2 text-center text-xs space-y-0.5">
+                    <div class="font-semibold"><%= coupon.discount_percent %>% Off</div>
+                    <div class="text-gray-400">Min Order: ₹<%= Math.round(coupon.min_order) %></div>
+                    <div class="text-gray-400">Max Disc: ₹<%= Math.round(coupon.max_discount) %></div>
+                  </td>
+                  <td class="py-3.5 px-2 text-center">
+                    <% if (coupon.used) { %>
+                      <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-blue-50 text-blue-700">
+                        Used
+                      </span>
+                    <% } else if (coupon.disabled) { %>
+                      <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-gray-50 text-gray-500">
+                        Disabled
+                      </span>
+                    <% } else if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) { %>
+                      <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-red-50 text-red-500">
+                        Expired
+                      </span>
+                    <% } else { %>
+                      <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-green-50 text-green-700">
+                        Active
+                      </span>
+                    <% } %>
+                  </td>
+                  <td class="py-3.5 pl-4 text-right">
+                    <% if (!coupon.used) { %>
+                      <form action="/admin/coupons/<%= coupon.id %>/toggle" method="POST" class="inline">
+                        <button type="submit" class="text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors <%= coupon.disabled ? 'border-green-200 text-green-700 hover:bg-green-50' : 'border-red-200 text-red-700 hover:bg-red-50' %>">
+                          <%= coupon.disabled ? 'Enable' : 'Disable' %>
+                        </button>
+                      </form>
+                    <% } else { %>
+                      <span class="text-xs text-gray-400">Locked</span>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Coupon Usage Logs -->
+  <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm overflow-hidden">
+    <h3 class="font-bold text-lg text-secondary mb-4 flex items-center gap-2">
+      <i class="ri-history-line text-primary"></i> Coupon Redemption History
+    </h3>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="border-b border-gray-100 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            <th class="py-3 pr-4">Time Applied</th>
+            <th class="py-3 px-2">Coupon Code</th>
+            <th class="py-3 px-2">Customer details</th>
+            <th class="py-3 px-2 text-center">Order Number</th>
+            <th class="py-3 pl-4 text-right">Discount Redeemed</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50 text-sm text-secondary">
+          <% if (usageLogs.length === 0) { %>
+            <tr>
+              <td colspan="5" class="py-8 text-center text-gray-400">No coupons applied yet.</td>
+            </tr>
+          <% } else { %>
+            <% usageLogs.forEach(log => { %>
+              <tr>
+                <td class="py-3.5 pr-4 text-xs text-gray-400">
+                  <%= new Date(log.applied_at).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: true }) %>
+                </td>
+                <td class="py-3.5 px-2 font-bold text-primary uppercase">
+                  <%= log.coupons ? log.coupons.code : 'UNKNOWN' %>
+                </td>
+                <td class="py-3.5 px-2 text-xs">
+                  <div class="font-semibold"><%= log.users ? log.users.name : 'Guest' %></div>
+                  <div class="text-gray-400 text-[10px]"><%= log.users ? log.users.email : 'N/A' %></div>
+                </td>
+                <td class="py-3.5 px-2 text-center text-xs font-mono font-medium">
+                  #<%= log.orders ? log.orders.order_number : 'N/A' %>
+                </td>
+                <td class="py-3.5 pl-4 text-right font-extrabold text-green-600">
+                  ₹<%= parseFloat(log.discount_amount).toFixed(2) %>
+                </td>
+              </tr>
+            <% }); %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

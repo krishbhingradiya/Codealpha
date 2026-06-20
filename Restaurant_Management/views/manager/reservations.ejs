@@ -1,0 +1,107 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-secondary">Reservation Management</h1>
+      <p class="text-gray-500 text-sm mt-1">Manage table reservations</p>
+    </div>
+    <a href="/manager/dashboard" class="text-sm text-primary hover:underline">← Back to Dashboard</a>
+  </div>
+
+  <% if (reservations.length === 0) { %>
+    <div class="text-center py-16 bg-white rounded-2xl border border-gray-100">
+      <i class="ri-calendar-check-line text-6xl text-gray-300 mb-4 block"></i>
+      <h3 class="text-lg font-medium text-gray-500">No reservations</h3>
+      <p class="text-gray-400 text-sm mt-1">Reservations will appear here when customers book tables</p>
+    </div>
+  <% } else { %>
+    <div class="grid gap-4">
+      <% 
+        const formatTimeAMPM = (timeStr) => {
+          if (!timeStr) return '';
+          const parts = timeStr.split(':');
+          let hour = parseInt(parts[0]);
+          const min = parts[1];
+          const ampm = hour >= 12 ? 'PM' : 'AM';
+          hour = hour % 12;
+          hour = hour ? hour : 12;
+          return `${hour}:${min} ${ampm}`;
+        };
+        reservations.forEach(r => {
+          const statusConfig = {
+            pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', icon: 'ri-time-line' },
+            confirmed: { bg: 'bg-green-100', text: 'text-green-800', icon: 'ri-checkbox-circle-line' },
+            cancelled: { bg: 'bg-red-100', text: 'text-red-800', icon: 'ri-close-circle-line' },
+            completed: { bg: 'bg-blue-100', text: 'text-blue-800', icon: 'ri-check-double-line' }
+          };
+          const sc = statusConfig[r.status] || statusConfig.pending;
+          const resDate = new Date(r.reservation_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+      %>
+        <div class="bg-white rounded-xl border border-gray-100 p-5 hover:shadow-md transition-shadow">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex-1">
+              <div class="flex items-center gap-3 mb-2">
+                <i class="ri-calendar-event-line text-primary text-xl"></i>
+                <span class="font-bold text-secondary"><%= resDate %> at <%= formatTimeAMPM(r.reservation_time) %></span>
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-medium <%= sc.bg %> <%= sc.text %>">
+                  <i class="<%= sc.icon %> mr-0.5"></i><%= r.status.charAt(0).toUpperCase() + r.status.slice(1) %>
+                </span>
+              </div>
+
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mt-2">
+                <div>
+                  <span class="text-gray-400">Customer:</span>
+                  <span class="font-medium text-secondary ml-1"><%= r.users ? r.users.name : 'Guest' %></span>
+                </div>
+                <div>
+                  <span class="text-gray-400">Mobile:</span>
+                  <span class="font-medium text-secondary ml-1"><%= r.users && r.users.mobile ? r.users.mobile : 'N/A' %></span>
+                </div>
+                <div>
+                  <span class="text-gray-400">Guests:</span>
+                  <span class="font-medium text-secondary ml-1"><%= r.guests %> people</span>
+                </div>
+                <div>
+                  <span class="text-gray-400">Table:</span>
+                  <span class="font-medium text-secondary ml-1">
+                    <%= r.tables ? 'Table ' + r.tables.table_number : (r.table_id ? 'Assigned' : 'Not assigned') %>
+                  </span>
+                </div>
+              </div>
+
+              <% if (r.notes) { %>
+                <p class="text-xs text-gray-500 mt-2 italic">📝 "<%= r.notes %>"</p>
+              <% } %>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex flex-wrap gap-2 md:flex-col md:min-w-[140px]">
+              <% if (r.status === 'pending') { %>
+                <form action="/manager/reservations/<%= r.id %>/status" method="POST" class="inline">
+                  <input type="hidden" name="status" value="confirmed">
+                  <button type="submit" class="w-full px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-lg hover:bg-green-600 transition-colors">
+                    <i class="ri-check-line mr-1"></i>Confirm
+                  </button>
+                </form>
+                <form action="/manager/reservations/<%= r.id %>/status" method="POST" class="inline">
+                  <input type="hidden" name="status" value="cancelled">
+                  <button type="submit" class="w-full px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-lg hover:bg-red-600 transition-colors">
+                    <i class="ri-close-line mr-1"></i>Cancel
+                  </button>
+                </form>
+              <% } else if (r.status === 'confirmed') { %>
+                <form action="/manager/reservations/<%= r.id %>/status" method="POST" class="inline">
+                  <input type="hidden" name="status" value="completed">
+                  <button type="submit" class="w-full px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors">
+                    <i class="ri-check-double-line mr-1"></i>Complete
+                  </button>
+                </form>
+              <% } else { %>
+                <span class="text-xs text-gray-400 text-center">No actions</span>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</div>

@@ -1,0 +1,178 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-secondary"><i class="ri-book-open-line mr-2 text-primary"></i>Manage Menu</h1>
+  </div>
+
+  <div class="grid lg:grid-cols-3 gap-6">
+    <!-- Add Item Form -->
+    <div class="bg-white rounded-2xl border border-gray-100 p-6">
+      <h2 class="font-semibold text-secondary mb-4">Add Menu Item</h2>
+      <form action="/manager/menu" method="POST" class="space-y-3">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+          <input type="text" name="name" required class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+          <select name="category_id" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+            <option value="">No category</option>
+            <% categories.forEach(cat => { %>
+              <option value="<%= cat.id %>"><%= cat.icon %> <%= cat.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
+          <input type="number" name="price" required step="0.01" min="0" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <textarea name="description" rows="2" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none resize-none"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
+          <input type="url" name="image_url" placeholder="https://..." class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="checkbox" name="available" id="available" checked class="rounded text-primary focus:ring-primary">
+          <label for="available" class="text-sm text-gray-700">Available</label>
+        </div>
+        <button type="submit" class="w-full py-2.5 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors text-sm font-medium">
+          Add Item
+        </button>
+      </form>
+
+      <!-- Categories Management -->
+      <div class="mt-6 pt-6 border-t border-gray-100">
+        <h3 class="font-semibold text-secondary mb-3">Categories</h3>
+        <form action="/manager/categories" method="POST" class="flex gap-2 mb-3">
+          <input type="text" name="name" placeholder="Category name" required class="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+          <button type="submit" class="px-4 py-2 bg-secondary text-white rounded-xl text-sm hover:bg-gray-800 transition-colors">Add</button>
+        </form>
+        <div class="space-y-1">
+          <% categories.forEach(cat => { %>
+            <div class="flex items-center justify-between py-1.5">
+              <span class="text-sm"><%= cat.icon %> <%= cat.name %></span>
+              <form action="/manager/categories/<%= cat.id %>/delete" method="POST" onsubmit="return confirm('Delete this category?')">
+                <button type="submit" class="text-red-400 hover:text-red-600 text-sm"><i class="ri-delete-bin-line"></i></button>
+              </form>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Menu Items List -->
+    <div class="lg:col-span-2">
+      <div class="space-y-3">
+        <% if (menuItems.length === 0) { %>
+          <div class="text-center py-16 bg-white rounded-2xl border border-gray-100">
+            <p class="text-gray-400">No menu items yet. Add your first item!</p>
+          </div>
+        <% } else { %>
+          <% menuItems.forEach(item => { %>
+            <div class="bg-white rounded-xl border border-gray-100 p-4">
+              <div class="flex items-start gap-4">
+                <div class="w-16 h-16 bg-orange-50 rounded-xl flex-shrink-0 flex items-center justify-center overflow-hidden">
+                  <% if (item.image_url) { %>
+                    <img src="<%= item.image_url %>" alt="<%= item.name %>" class="w-full h-full object-cover">
+                  <% } else { %>
+                    <span class="text-2xl"><%= item.categories ? item.categories.icon : '🍽️' %></span>
+                  <% } %>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1">
+                    <h3 class="font-semibold text-sm truncate"><%= item.name %></h3>
+                    <span class="px-2 py-0.5 rounded-full text-xs font-medium <%= item.available ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' %>">
+                      <%= item.available ? 'Available' : 'Unavailable' %>
+                    </span>
+                  </div>
+                  <p class="text-xs text-gray-500 mb-2 truncate"><%= item.description || 'No description' %></p>
+                  <span class="font-bold text-primary"><%= formatCurrency(item.price) %></span>
+                </div>
+                <div class="flex items-center gap-1 flex-shrink-0">
+                  <form action="/manager/menu/<%= item.id %>/toggle" method="POST">
+                    <button type="submit" class="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-primary" title="Toggle availability">
+                      <i class="ri-eye-<%= item.available ? 'line' : 'off-line' %>"></i>
+                    </button>
+                  </form>
+                  <button data-edit="<%- JSON.stringify({id: item.id, name: item.name, category_id: item.category_id || '', description: item.description || '', price: item.price, image_url: item.image_url || '', available: item.available}).replace(/"/g, '&quot;') %>"
+                    onclick="var d=JSON.parse(this.getAttribute('data-edit'));editMenuItem(d.id,d.name,d.category_id,d.description,d.price,d.image_url,d.available)"
+                    class="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-blue-500" title="Edit">
+                    <i class="ri-pencil-line"></i>
+                  </button>
+                  <form action="/manager/menu/<%= item.id %>/delete" method="POST" onsubmit="return confirm('Delete this item?')">
+                    <button type="submit" class="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-red-500" title="Delete">
+                      <i class="ri-delete-bin-line"></i>
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div id="editModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+  <div class="bg-white rounded-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-semibold text-lg">Edit Menu Item</h2>
+      <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600"><i class="ri-close-line text-xl"></i></button>
+    </div>
+    <form id="editForm" method="POST" class="space-y-3">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+        <input type="text" name="name" id="edit-name" required class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+        <select name="category_id" id="edit-category" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm">
+          <option value="">No category</option>
+          <% categories.forEach(cat => { %>
+            <option value="<%= cat.id %>"><%= cat.icon %> <%= cat.name %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
+        <input type="number" name="price" id="edit-price" required step="0.01" min="0" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+        <textarea name="description" id="edit-description" rows="2" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm resize-none"></textarea>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
+        <input type="url" name="image_url" id="edit-image" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm">
+      </div>
+      <div class="flex items-center gap-2">
+        <input type="checkbox" name="available" id="edit-available" class="rounded text-primary focus:ring-primary">
+        <label for="edit-available" class="text-sm text-gray-700">Available</label>
+      </div>
+      <button type="submit" class="w-full py-2.5 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors text-sm font-medium">Save Changes</button>
+    </form>
+  </div>
+</div>
+
+<script>
+function editMenuItem(id, name, categoryId, description, price, imageUrl, available) {
+  document.getElementById('editForm').action = `/manager/menu/${id}/update`;
+  document.getElementById('edit-name').value = name;
+  document.getElementById('edit-category').value = categoryId;
+  document.getElementById('edit-description').value = description;
+  document.getElementById('edit-price').value = price;
+  document.getElementById('edit-image').value = imageUrl;
+  document.getElementById('edit-available').checked = available;
+  document.getElementById('editModal').classList.remove('hidden');
+  document.getElementById('editModal').classList.add('flex');
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.add('hidden');
+  document.getElementById('editModal').classList.remove('flex');
+}
+</script>

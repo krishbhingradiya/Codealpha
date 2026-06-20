@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice #<%= order.order_number %> | DineFlow</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#F97316',
+            'primary-dark': '#EA580C',
+            'primary-light': '#FED7AA',
+            secondary: '#334155'
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css">
+  
+  <!-- html2pdf library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    body {
+      background-color: #f3f4f6;
+    }
+    @media print {
+      body {
+        background-color: #ffffff;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .shadow-custom {
+        box-shadow: none !important;
+      }
+      .print-border {
+        border: 1px solid #e5e7eb !important;
+      }
+    }
+    .shadow-custom {
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    }
+  </style>
+</head>
+<body class="py-10 px-4 sm:px-6">
+
+  <!-- Actions Bar -->
+  <div class="max-w-3xl mx-auto mb-6 flex flex-wrap justify-between items-center gap-3 no-print">
+    <a href="/orders/history" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors">
+      <i class="ri-arrow-left-line mr-1"></i> Back to Order History
+    </a>
+    <div class="flex gap-2">
+      <button onclick="window.print()" class="inline-flex items-center px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors text-sm font-medium shadow-sm">
+        <i class="ri-printer-line mr-2 text-gray-500"></i> Print Invoice
+      </button>
+      <button onclick="downloadPDF()" class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors text-sm font-medium shadow-sm">
+        <i class="ri-download-2-line mr-2"></i> Download PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- Invoice Container -->
+  <div id="invoice-card" class="max-w-3xl mx-auto bg-white rounded-3xl border border-gray-100 p-8 sm:p-12 shadow-custom print-border relative overflow-hidden">
+    
+    <!-- Top Soft Orange Accent Line -->
+    <div class="absolute top-0 left-0 right-0 h-2 bg-primary"></div>
+
+    <!-- Invoice Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 pb-8 border-b border-gray-100">
+      <div>
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+            <i class="ri-restaurant-2-line text-primary text-2xl"></i>
+          </div>
+          <span class="text-2xl font-bold text-secondary tracking-tight">DineFlow</span>
+        </div>
+        <p class="text-xs text-gray-400">128 Gourmet Boulevard, Sector 62, Noida, UP, India</p>
+        <p class="text-xs text-gray-400">GSTIN: 09AAACD1234F1Z5</p>
+      </div>
+      <div class="text-left sm:text-right">
+        <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full <%= order.status === 'completed' || order.status === 'served' ? 'bg-green-50 text-green-700' : (order.status === 'cancelled' ? 'bg-red-50 text-red-700' : 'bg-orange-50 text-orange-700') %> uppercase mb-2">
+          <%= order.status %>
+        </span>
+        <h1 class="text-3xl font-extrabold text-secondary tracking-tight">INVOICE</h1>
+        <p class="text-sm font-medium text-gray-500 mt-1">Invoice: <span class="text-secondary font-semibold">INV-<%= order.order_number.substring(4) %></span></p>
+      </div>
+    </div>
+
+    <!-- Metadata Details -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 py-8 border-b border-gray-100 text-sm">
+      <div>
+        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Billed To</h3>
+        <p class="font-semibold text-secondary text-base"><%= order.users ? order.users.name : 'Customer' %></p>
+        <p class="text-gray-500 mt-1"><i class="ri-mail-line mr-1.5 text-gray-400"></i><%= order.users ? order.users.email : 'N/A' %></p>
+        <% if (order.users && order.users.mobile) { %>
+          <p class="text-gray-500 mt-0.5"><i class="ri-phone-line mr-1.5 text-gray-400"></i><%= order.users.mobile %></p>
+        <% } %>
+      </div>
+      <div class="sm:text-right">
+        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Order Details</h3>
+        <p class="text-gray-500">Order Number: <span class="font-semibold text-secondary">#<%= order.order_number %></span></p>
+        <p class="text-gray-500 mt-1">Table Number: <span class="font-semibold text-secondary"><%= order.table_number ? 'Table ' + order.table_number : 'Takeaway / Delivery' %></span></p>
+        <p class="text-gray-500 mt-1">Date & Time: <span class="font-semibold text-secondary">
+          <%= new Date(order.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) %> 
+          at <%= new Date(order.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }) %>
+        </span></p>
+      </div>
+    </div>
+
+    <!-- Items List -->
+    <div class="py-8">
+      <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Ordered Items</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-gray-100 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              <th class="py-3">Item Description</th>
+              <th class="py-3 text-center w-20">Qty</th>
+              <th class="py-3 text-right w-32">Price</th>
+              <th class="py-3 text-right w-32">Amount</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50 text-sm text-secondary">
+            <% 
+              let calculatedSubtotal = 0;
+              order.items.forEach(item => { 
+                const itemAmount = parseFloat(item.price) * parseInt(item.quantity);
+                calculatedSubtotal += itemAmount;
+            %>
+              <tr>
+                <td class="py-4 font-medium"><%= item.item_name %></td>
+                <td class="py-4 text-center"><%= item.quantity %></td>
+                <td class="py-4 text-right">₹<%= parseFloat(item.price).toFixed(2) %></td>
+                <td class="py-4 text-right font-medium">₹<%= itemAmount.toFixed(2) %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Invoice Summary -->
+    <div class="pt-6 border-t border-gray-100 flex justify-end">
+      <div class="w-full sm:w-80 space-y-3.5 text-sm text-gray-500">
+        <div class="flex justify-between">
+          <span>Subtotal</span>
+          <span class="font-semibold text-secondary">₹<%= calculatedSubtotal.toFixed(2) %></span>
+        </div>
+        
+        <% if (order.discount_amount && parseFloat(order.discount_amount) > 0) { %>
+          <div class="flex justify-between text-green-600 bg-green-50/50 px-3 py-1.5 rounded-lg border border-green-100/50">
+            <span class="flex items-center gap-1 font-medium">
+              <i class="ri-coupon-3-line"></i> Discount (<%= order.coupon_code %>)
+            </span>
+            <span class="font-bold">- ₹<%= parseFloat(order.discount_amount).toFixed(2) %></span>
+          </div>
+        <% } %>
+
+        <% 
+          // GST details (5% total GST for restaurant: 2.5% CGST + 2.5% SGST)
+          const baseForTax = Math.max(0, calculatedSubtotal - parseFloat(order.discount_amount || 0));
+          const cgst = baseForTax * 0.025;
+          const sgst = baseForTax * 0.025;
+          const gstTotal = cgst + sgst;
+          // Verify grand total matching
+          const totalWithGst = baseForTax + gstTotal;
+        %>
+        <div class="flex justify-between text-xs">
+          <span>CGST (2.5%)</span>
+          <span>₹<%= cgst.toFixed(2) %></span>
+        </div>
+        <div class="flex justify-between text-xs pb-2 border-b border-gray-100">
+          <span>SGST (2.5%)</span>
+          <span>₹<%= sgst.toFixed(2) %></span>
+        </div>
+
+        <div class="flex justify-between text-base font-bold text-secondary pt-2">
+          <span>Grand Total</span>
+          <span class="text-primary text-xl font-extrabold">₹<%= parseFloat(order.total_amount).toFixed(2) %></span>
+        </div>
+
+        <div class="pt-4 text-xs text-right text-gray-400">
+          * GST included in grand total calculations.
+        </div>
+      </div>
+    </div>
+
+    <!-- Thank You Section -->
+    <div class="mt-12 pt-8 border-t border-gray-100 text-center">
+      <p class="text-sm font-medium text-secondary">Thank you for dining with us!</p>
+      <p class="text-xs text-gray-400 mt-1">If you have any questions regarding this invoice, contact support@dineflow.com</p>
+    </div>
+
+  </div>
+
+  <script>
+    function downloadPDF() {
+      const element = document.getElementById('invoice-card');
+      const opt = {
+        margin:       0.5,
+        filename:     'DineFlow_Invoice_<%= order.order_number %>.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+
+      // Create PDF
+      html2pdf().set(opt).from(element).save();
+    }
+  </script>
+
+</body>
+</html>

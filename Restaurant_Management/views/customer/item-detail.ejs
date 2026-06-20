@@ -1,0 +1,65 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="mb-6">
+    <a href="/" class="text-primary hover:underline text-sm"><i class="ri-arrow-left-line mr-1"></i>Back to Menu</a>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden max-w-4xl mx-auto">
+    <div class="grid md:grid-cols-2 gap-0">
+      <!-- Image -->
+      <div class="aspect-square bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center">
+        <% if (item.image_url) { %>
+          <img src="<%= item.image_url %>" alt="<%= item.name %>" class="w-full h-full object-cover">
+        <% } else { %>
+          <span class="text-8xl"><%= item.categories ? item.categories.icon : '🍽️' %></span>
+        <% } %>
+      </div>
+
+      <!-- Details -->
+      <div class="p-8 flex flex-col justify-center">
+        <% if (item.categories) { %>
+          <span class="inline-flex items-center gap-1 text-sm text-gray-500 mb-2">
+            <%= item.categories.icon %> <%= item.categories.name %>
+          </span>
+        <% } %>
+        
+        <h1 class="text-2xl font-bold text-secondary mb-3"><%= item.name %></h1>
+        <p class="text-gray-500 mb-6"><%= item.description || 'A delightful dish prepared with the freshest ingredients.' %></p>
+        
+        <div class="flex items-center gap-4 mb-6">
+          <span class="text-3xl font-bold text-primary"><%= formatCurrency(item.price) %></span>
+          <% if (item.available) { %>
+            <span class="px-3 py-1 bg-green-50 text-green-700 text-sm font-medium rounded-full">Available</span>
+          <% } else { %>
+            <span class="px-3 py-1 bg-red-50 text-red-700 text-sm font-medium rounded-full">Unavailable</span>
+          <% } %>
+        </div>
+
+        <% if (item.available && (!user || user.role === 'customer')) { %>
+          <button 
+            data-id="<%= item.id %>"
+            data-name="<%= item.name %>"
+            data-price="<%= parseFloat(item.price) %>"
+            data-image-url="<%= item.image_url || '' %>"
+            data-category-icon="<%= item.categories ? item.categories.icon : '🍽️' %>"
+            onclick="addDetailItemToCart(this)"
+            class="w-full py-3 bg-primary text-white font-medium rounded-xl hover:bg-primary-dark transition-colors shadow-sm text-sm active:scale-[0.98]">
+            <i class="ri-shopping-cart-2-line mr-2"></i>Add to Cart
+          </button>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function addDetailItemToCart(button) {
+    const item = {
+      id: button.dataset.id,
+      name: button.dataset.name,
+      price: parseFloat(button.dataset.price),
+      image_url: button.dataset.imageUrl || null,
+      category_icon: button.dataset.categoryIcon || '🍽️'
+    };
+    addToCart(item);
+  }
+</script>

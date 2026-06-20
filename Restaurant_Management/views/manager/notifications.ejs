@@ -1,0 +1,39 @@
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-secondary"><i class="ri-notification-3-line mr-2 text-primary"></i>Notifications</h1>
+    <% if (notifications.length > 0) { %>
+      <form action="/notifications/read-all" method="POST">
+        <button type="submit" class="text-sm text-primary hover:underline">Mark all as read</button>
+      </form>
+    <% } %>
+  </div>
+
+  <% if (notifications.length === 0) { %>
+    <div class="text-center py-16 bg-white rounded-2xl border border-gray-100">
+      <i class="ri-notification-off-line text-6xl text-gray-300 mb-4 block"></i>
+      <h3 class="text-lg font-medium text-gray-500">No notifications</h3>
+    </div>
+  <% } else { %>
+    <div class="space-y-2">
+      <% notifications.forEach(n => { %>
+        <%
+          const typeIcons = { order: 'ri-file-list-3-line text-blue-500', reservation: 'ri-calendar-check-line text-purple-500', inventory: 'ri-archive-line text-red-500', info: 'ri-information-line text-gray-500' };
+          const icon = typeIcons[n.type] || typeIcons.info;
+        %>
+        <div class="bg-white rounded-xl border border-gray-100 p-4 flex items-start gap-3 <%= !n.is_read ? 'border-l-4 border-l-primary bg-orange-50/30' : '' %>">
+          <i class="<%= icon %> text-xl mt-0.5"></i>
+          <div class="flex-1">
+            <h3 class="font-medium text-sm text-secondary"><%= n.title %></h3>
+            <p class="text-sm text-gray-500"><%= n.message %></p>
+            <span class="text-xs text-gray-400 mt-1 block"><%= new Date(n.created_at).toLocaleString() %></span>
+          </div>
+          <% if (!n.is_read) { %>
+            <form action="/notifications/<%= n.id %>/read" method="POST">
+              <button type="submit" class="text-xs text-primary hover:underline">Mark read</button>
+            </form>
+          <% } %>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</div>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/manager-admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>Hotel Management</h2>
+    <nav>
+      <ul>
+        <li><a href="/manager/dashboard">Dashboard</a></li>
+        <li><a href="/manager/menu">Menu</a></li>
+        <li><a href="/manager/tables">Tables</a></li>
+        <li><a href="/manager/inventory">Inventory</a></li>
+        <li><a href="/manager/analytics">Analytics</a></li>
+        <li><a href="/logout">Logout</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="main-content">
+    <header>
+      <h1><%= title %></h1>
+    </header>
+    <main>
+      <%- body %>
+    </main>
+  </div>
+  <script src="/js/manager.js"></script>
+</body>
+</html>

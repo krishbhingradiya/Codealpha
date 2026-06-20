@@ -1,0 +1,70 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-secondary">Admin Dashboard</h1>
+    <p class="text-gray-500 text-sm mt-1">System-wide overview and management</p>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white rounded-xl border border-gray-100 p-5">
+      <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mb-3"><i class="ri-group-line text-blue-500 text-lg"></i></div>
+      <p class="text-2xl font-bold text-secondary"><%= stats.totalUsers %></p>
+      <p class="text-sm text-gray-500">Total Users</p>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-100 p-5">
+      <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center mb-3"><i class="ri-money-dollar-circle-line text-green-500 text-lg"></i></div>
+      <p class="text-2xl font-bold text-secondary"><%= formatCurrency(stats.totalRevenue) %></p>
+      <p class="text-sm text-gray-500">Total Revenue</p>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-100 p-5">
+      <div class="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center mb-3"><i class="ri-shopping-bag-3-line text-purple-500 text-lg"></i></div>
+      <p class="text-2xl font-bold text-secondary"><%= stats.totalOrders %></p>
+      <p class="text-sm text-gray-500">Total Orders</p>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-100 p-5">
+      <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mb-3"><i class="ri-restaurant-line text-orange-500 text-lg"></i></div>
+      <p class="text-2xl font-bold text-secondary"><%= stats.totalMenuItems %></p>
+      <p class="text-sm text-gray-500">Menu Items</p>
+    </div>
+  </div>
+
+  <!-- User Breakdown -->
+  <div class="grid md:grid-cols-3 gap-4 mb-8">
+    <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 text-center">
+      <p class="text-3xl font-bold text-blue-700"><%= stats.customers %></p>
+      <p class="text-sm font-medium text-blue-600">Customers</p>
+    </div>
+    <div class="bg-purple-50 border border-purple-100 rounded-xl p-4 text-center">
+      <p class="text-3xl font-bold text-purple-700"><%= stats.managers %></p>
+      <p class="text-sm font-medium text-purple-600">Managers</p>
+    </div>
+    <div class="bg-orange-50 border border-orange-100 rounded-xl p-4 text-center">
+      <p class="text-3xl font-bold text-orange-700"><%= stats.admins %></p>
+      <p class="text-sm font-medium text-orange-600">Admins</p>
+    </div>
+  </div>
+
+  <!-- Quick Links -->
+  <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+    <a href="/admin/users" class="bg-white rounded-xl border border-gray-100 p-5 text-center hover:shadow-md transition-shadow group">
+      <i class="ri-group-line text-2xl text-primary mb-2 block group-hover:scale-110 transition-transform"></i>
+      <span class="text-sm font-medium text-secondary">Manage Users</span>
+    </a>
+    <a href="/admin/coupons" class="bg-white rounded-xl border border-gray-100 p-5 text-center hover:shadow-md transition-shadow group">
+      <i class="ri-coupon-3-line text-2xl text-primary mb-2 block group-hover:scale-110 transition-transform"></i>
+      <span class="text-sm font-medium text-secondary">Manage Coupons</span>
+    </a>
+    <a href="/admin/reports" class="bg-white rounded-xl border border-gray-100 p-5 text-center hover:shadow-md transition-shadow group">
+      <i class="ri-bar-chart-2-line text-2xl text-primary mb-2 block group-hover:scale-110 transition-transform"></i>
+      <span class="text-sm font-medium text-secondary">Reports</span>
+    </a>
+    <a href="/admin/activity-logs" class="bg-white rounded-xl border border-gray-100 p-5 text-center hover:shadow-md transition-shadow group">
+      <i class="ri-history-line text-2xl text-primary mb-2 block group-hover:scale-110 transition-transform"></i>
+      <span class="text-sm font-medium text-secondary">Activity Logs</span>
+    </a>
+    <a href="/manager" class="bg-white rounded-xl border border-gray-100 p-5 text-center hover:shadow-md transition-shadow group">
+      <i class="ri-dashboard-line text-2xl text-primary mb-2 block group-hover:scale-110 transition-transform"></i>
+      <span class="text-sm font-medium text-secondary">Manager Panel</span>
+    </a>
+  </div>
+</div>

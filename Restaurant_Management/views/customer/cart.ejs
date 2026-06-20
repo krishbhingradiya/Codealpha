@@ -1,0 +1,101 @@
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <h1 class="text-2xl font-bold text-secondary mb-6"><i class="ri-shopping-cart-2-line mr-2 text-primary"></i>Your Cart</h1>
+
+  <div id="cart-empty" class="hidden text-center py-16">
+    <i class="ri-shopping-cart-line text-6xl text-gray-300 mb-4 block"></i>
+    <h3 class="text-lg font-medium text-gray-500">Your cart is empty</h3>
+    <p class="text-gray-400 text-sm mt-1 mb-4">Browse our menu and add items to your cart</p>
+    <a href="/" class="inline-flex items-center px-6 py-2.5 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors text-sm font-medium">
+      <i class="ri-restaurant-line mr-2"></i>Browse Menu
+    </a>
+  </div>
+
+  <div id="cart-content" class="hidden">
+    <div class="grid lg:grid-cols-3 gap-6">
+      <!-- Cart Items -->
+      <div class="lg:col-span-2 space-y-3" id="cart-items-list"></div>
+
+      <!-- Order Summary -->
+      <div class="bg-white rounded-2xl border border-gray-100 p-6 h-fit sticky top-24">
+        <h2 class="font-semibold text-lg text-secondary mb-4">Order Summary</h2>
+        
+        <div class="space-y-3 mb-4 pb-4 border-b border-gray-100">
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500">Items (<span id="summary-count">0</span>)</span>
+            <span class="font-medium" id="summary-subtotal">₹0.00</span>
+          </div>
+          <div id="discount-row" class="flex justify-between items-center text-sm text-green-700 bg-green-50/50 px-3 py-2 rounded-xl border border-green-100/50 hidden">
+            <div class="flex items-center gap-1.5 min-w-0">
+              <i class="ri-coupon-3-fill text-green-600 flex-shrink-0 text-base"></i>
+              <span class="font-bold uppercase tracking-wider text-xs px-2 py-0.5 bg-green-100 rounded-md truncate" id="discount-coupon-code"></span>
+            </div>
+            <span class="font-bold flex-shrink-0 ml-2" id="summary-discount">- ₹0.00</span>
+          </div>
+        </div>
+        
+        <div class="flex justify-between font-semibold text-lg mb-6">
+          <span>Total</span>
+          <span class="text-primary" id="summary-total">₹0.00</span>
+        </div>
+
+        <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated && user && user.role === 'customer') { %>
+          <form action="/orders" method="POST" id="checkout-form">
+            <input type="hidden" name="items" id="order-items">
+            <input type="hidden" name="coupon_code" id="coupon-code-input">
+            
+            <!-- Promo Code Section -->
+            <div class="mb-5 pb-5 border-b border-gray-100">
+              <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Promo Code</label>
+              <div class="relative flex items-center">
+                <div class="absolute left-3.5 text-gray-400">
+                  <i class="ri-coupon-3-line text-base"></i>
+                </div>
+                <input type="text" id="coupon-field" placeholder="WELCOME20" 
+                  class="w-full pl-10 pr-20 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all uppercase placeholder-gray-400">
+                <button type="button" onclick="applyCouponCode()" 
+                  class="absolute right-1.5 px-3.5 py-1.5 bg-secondary text-white text-xs font-bold rounded-lg hover:bg-secondary-dark transition-colors shadow-sm">
+                  Apply
+                </button>
+              </div>
+              <div id="coupon-feedback" class="mt-2 text-xs font-semibold hidden"></div>
+            </div>
+            
+            <div class="space-y-3 mb-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Table Number</label>
+                <select name="table_number" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+                  <option value="">Select table (optional)</option>
+                  <% for(let i = 1; i <= 10; i++) { %>
+                    <option value="<%= i %>">Table <%= i %></option>
+                  <% } %>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Special Instructions</label>
+                <textarea name="special_instructions" rows="2" placeholder="Any special requests..."
+                  class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none resize-none"></textarea>
+              </div>
+            </div>
+
+            <button type="submit" onclick="prepareCheckout()" class="w-full py-3 bg-primary text-white font-medium rounded-xl hover:bg-primary-dark transition-colors shadow-sm text-sm">
+              Place Order
+            </button>
+          </form>
+        <% } else if (typeof isAuthenticated !== 'undefined' && isAuthenticated && user && (user.role === 'manager' || user.role === 'admin')) { %>
+          <div class="p-4 bg-orange-50 border border-orange-200 rounded-xl text-center">
+            <p class="text-sm text-orange-800 font-medium">Managers and admins cannot place orders.</p>
+          </div>
+        <% } else { %>
+          <a href="/auth/login" class="block w-full py-3 bg-primary text-white font-medium rounded-xl hover:bg-primary-dark transition-colors shadow-sm text-sm text-center">
+            Login to Place Order
+          </a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/cart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', renderCartPage);
+</script>
